@@ -16,5 +16,7 @@ namespace TodoApi.Models
         }
         public DbSet<TodoItem> TodoItems { get; set; }
         public DbSet<StatusChecker> StatusCheckers { get; set; }
+        public DbSet<Admin> Admins { get; set; }
+
     }
 }
