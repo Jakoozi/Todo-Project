@@ -1,4 +1,5 @@
 ﻿using Hangfire;
+using Hangfire.SqlServer;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,9 +18,9 @@ namespace TodoApi
         public BackgroundTask(TodoContext todoContext)
         {
             context = todoContext;
-            RecurringJob.AddOrUpdate("Schedule Daily Task", () => ScheduleDailyTask(), Cron.Daily);
+            RecurringJob.AddOrUpdate("Schedule Daily Task", () => ScheduleDailyTask(), Cron.DayInterval(1));
             RecurringJob.AddOrUpdate("Pending Daily Task", () => PendingDailyTask(), Cron.MinuteInterval(1));
-            RecurringJob.AddOrUpdate("Ongoing Daily Task", () => OngoingDailyTask(), Cron.MinuteInterval(1));
+            //RecurringJob.AddOrUpdate("Ongoing Daily Task", () => OngoingDailyTask(), Cron.MinuteInterval(1));
             RecurringJob.AddOrUpdate("Completed Daily Task", () => CompletedDailyTask(), Cron.MinuteInterval(1));
             RecurringJob.AddOrUpdate("Skipped Daily Task", () => SkippedDailyTask(), Cron.MinuteInterval(1));
 
@@ -27,151 +28,184 @@ namespace TodoApi
 
         public void SkippedDailyTask()
         {
-            //this method will later be implemented.;
+            var pendingtasks = GetPendingTasks();
+            if (pendingtasks.Count() == 0)
+            {
+                Console.WriteLine("Empty List");
+            }
+            else
+            {
+                foreach (var item in pendingtasks)
+                {
+                    if (item.EndTime.Hour <= DateTime.Now.Hour)
+                    {
+                        if (item.EndTime.Minute <= DateTime.Now.Minute)
+                        {
+                            item.StatusReturner = StatusReturner.Skipped;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Empty List");
+                        }
+                        context.SaveChanges();
+                    }
+                   
+                }
+               
+            }
         }
 
+        //i am testing this one out
         public void CompletedDailyTask()
         {
-            TimeSpan startTime = new TimeSpan(hours: 0, minutes: 0, seconds: 0); //will be changed to (0,0,0)
-            TimeSpan endTime = new TimeSpan(hours: 13, minutes: 0, seconds: 0);
-            TimeSpan currentTime = DateTime.Now.TimeOfDay;
-
-
-            if (startTime >= currentTime && currentTime <= endTime)
+            var completedtasks = GetOngoingTasks();
+            if (completedtasks.Count() == 0)
             {
-                var ongoingtasks = GetOngoingTask();
-                foreach (var item in ongoingtasks)
-                {
-                    if (item.EndTime.Minute.Equals(DateTime.Now.Minute))
-                    {
-                        item.StatusReturner = StatusReturner.Completed;
-                    }
-                }
-                context.SaveChanges();
+                Console.WriteLine("Empty List");
             }
-        }
-
-        public void OngoingDailyTask()
-        {
-            TimeSpan startTime = new TimeSpan(hours: 0, minutes: 0, seconds: 0); //will be changed to (0,0,0)
-            TimeSpan endTime = new TimeSpan(hours: 13, minutes: 0, seconds: 0);
-            TimeSpan currentTime = DateTime.Now.TimeOfDay;
-
-            if (startTime >= currentTime && currentTime <= endTime)
+            else
             {
-                var pendingtasks = GetPendingTask();
-                //this depends on if the user accepts the pending request.
-                //it eigther goes to ongoing or remains pending.
-                //after the EndTime Value, if it was accepted(Ongoing) it moves to completed,
-                //if it was notacceptd(pending), it moves to Skipped.
-                if (pendingtasks != null)
+                foreach (var item in completedtasks)
                 {
-
-                    foreach (var item in pendingtasks)
+                    if(item.EndTime.Hour <= DateTime.Now.Hour)
                     {
-                        //if the task is accepted in my client side. That shuold be what will be here.
-                        if (item.StartTime.Minute.Equals(DateTime.Now.Minute))
+                        if (item.EndTime.Minute <= DateTime.Now.Minute)
                         {
-                            item.StatusReturner = StatusReturner.Ongoing;
+                            item.StatusReturner = StatusReturner.Completed;
                         }
+                        else
+                        {
+                            Console.WriteLine("Empty List");
+                        }
+                        context.SaveChanges();
                     }
-                    context.SaveChanges();
+                  
                 }
+                
             }
+
+
         }
 
         public void PendingDailyTask()
         {
-            TimeSpan startTime = new TimeSpan(hours: 2, minutes: 0, seconds: 0); //will be changed to (0,0,0)
-            TimeSpan endTime = new TimeSpan(hours: 13, minutes: 0, seconds: 0);
-            TimeSpan currentTime = DateTime.Now.TimeOfDay;
-
-            
-            if(startTime <= currentTime && currentTime <= endTime)
-            { 
+           
             var scheduledtasks = GetScheduledTasks();
-                if (scheduledtasks != null)
+            if (scheduledtasks.Count() == 0)
+            {
+                Console.WriteLine("Empty List");
+            }
+            else
+            {
+                foreach (var item in scheduledtasks)
                 {
-                    foreach (var item in scheduledtasks)
+
+                    if(item.StartTime.Hour <= DateTime.Now.Hour)
                     {
-                        if (item.StartTime.Minute.Equals(DateTime.Now.Minute))
+                        if (item.StartTime.Minute <= DateTime.Now.Minute)
                         {
                             item.StatusReturner = StatusReturner.Pending;
                         }
+                        else
+                        {
+                            Console.WriteLine("Empty List");
+                        }
+                        context.SaveChanges();
                     }
-                    context.SaveChanges();
                 }
+                
             }
         }
 
         public void ScheduleDailyTask()
         {
-            StatusChecker statusmodel = new StatusChecker();
-            TimeSpan startTime = new TimeSpan(hours: 0, minutes: 0, seconds: 0); //will be changed to (0,0,0)
-            TimeSpan endTime = new TimeSpan(hours: 13, minutes: 0, seconds: 0);
-            TimeSpan currentTime = DateTime.Now.TimeOfDay;
 
-            if (startTime >= currentTime && currentTime <= endTime)
+            var unscheduledTask = GetUnscheduledTasks();
+            if (unscheduledTask.Count() == 0)
             {
-
-                var hasTaskBeenScheduled = HasTaskBeenScheduled();
-                if (!hasTaskBeenScheduled)// could also be used hasTaskBeenScheduled == false.
+                Console.WriteLine("Empty List");
+            }
+            else
+            {
+                foreach (var item in unscheduledTask)
                 {
-                    var unscheduledTask = GetUnscheduledTasks();
-                    foreach (var item in unscheduledTask)
+                    if (item.StartTime.Day <= DateTime.Now.Day)
                     {
                         item.StatusReturner = StatusReturner.Scheduled;
-                        //will need to kmnow if the statuschecker table adds all records(items) that changed to scheduled. 
                     }
-                    statusmodel.DateChecked = DateTime.Now;
-
-                    context.StatusCheckers.Add(statusmodel);
-
-                }
-
-                context.SaveChanges();
+                    else
+                    {
+                        Console.WriteLine("Empty List");
+                    }
+                    context.SaveChanges();
+                }    
             }
         }
 
-        public  bool HasTaskBeenScheduled()
-        {
-            StatusChecker statusmodel = new StatusChecker();
-            //checks our statuschecker to see if there is an item that contains todays date and returns true, if not it returns false.
-            var item = (from u in context.StatusCheckers
-                        where u.DateChecked.Date == DateTime.Now.Date
-                        select u);
-            if(item!=null)
-            {
-                return true;
-            }
-            return false;
-        }
+       
 
         public IEnumerable<TodoItem> GetUnscheduledTasks()
         {
-            return context.TodoItems.Where(x => x.StatusReturner == StatusReturner.Unscheduled);
+            var unscheduleditems = context.TodoItems.Where(x => x.StatusReturner == StatusReturner.Unscheduled).ToList();
+            return unscheduleditems;
         }
         public IEnumerable<TodoItem> GetScheduledTasks()
         {
-            return context.TodoItems.Where(x => x.StatusReturner == StatusReturner.Scheduled);
+            var scheduledItem = context.TodoItems.Where(x => x.StatusReturner == StatusReturner.Scheduled).ToList();
+            return scheduledItem;
+
+
         }
-        public IEnumerable<TodoItem> GetPendingTask()
+        public IEnumerable<TodoItem> GetPendingTasks()
         {
-            return context.TodoItems.Where(x => x.StatusReturner == StatusReturner.Pending);
+            var pendingtasks = context.TodoItems.Where(x => x.StatusReturner == StatusReturner.Pending).ToList();
+            return pendingtasks;
         }
-        public IEnumerable<TodoItem> GetOngoingTask()
+        public IEnumerable<TodoItem> GetOngoingTasks()
         {
-            return context.TodoItems.Where(x => x.StatusReturner == StatusReturner.Ongoing);
+            var ongoingItem = context.TodoItems.Where(x => x.StatusReturner == StatusReturner.Ongoing).ToList();
+            return ongoingItem;
         }
     }
 
 
 
-    public class HangFire
-    {
-
-    }
+   // public class HangFire
+   // {
+   //
+   // }
 
 
 
 }
+
+
+
+//public void OngoingDailyTask()
+//{
+//    TimeSpan startTime = new TimeSpan(hours: 0, minutes: 0, seconds: 0); //will be changed to (0,0,0)
+//    TimeSpan endTime = new TimeSpan(hours: 13, minutes: 0, seconds: 0);
+//    TimeSpan currentTime = DateTime.Now.TimeOfDay;
+
+//    if (startTime >= currentTime && currentTime <= endTime)
+//    {
+//        var pendingtasks = GetPendingTask();
+//        //this depends on if the user accepts the pending request.
+//        //it eigther goes to ongoing or remains pending.
+//        //after the EndTime Value, if it was accepted(Ongoing) it moves to completed,
+//        //if it was notacceptd(pending), it moves to Skipped.
+//        if (pendingtasks != null)
+//        {
+
+//            foreach (var item in pendingtasks)
+//            {
+//                //if the task is accepted in my client side. That shuold be what will be here.
+//                if (item.StartTime.Minute.Equals(DateTime.Now.Minute))
+//                {
+//                    item.StatusReturner = StatusReturner.Ongoing;
+//                }
+//            }
+//            context.SaveChanges();
+//        }
+//    }
+//}
