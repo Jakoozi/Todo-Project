@@ -20,12 +20,11 @@
     "TodoApi": {
       "commandName": "Project",
       "launchBrowser": true,
-      //"launchUrl": "api/values",
-      "launchUrl": "api/admin",
+      "launchUrl": "api/values",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "applicationUrl": "http://localhost:5000"
+      "applicationUrl": "https://localhost:5001"
     }
   }
 }

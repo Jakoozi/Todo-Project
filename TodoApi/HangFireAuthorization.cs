@@ -42,8 +42,7 @@ namespace TodoApi
 
         public bool Authorize([NotNull] DashboardContext context)
         {
-            return true;
-            //throw new NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 }
