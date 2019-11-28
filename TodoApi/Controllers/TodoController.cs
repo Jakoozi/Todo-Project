@@ -27,7 +27,7 @@ namespace TodoApi.Controllers
 
         [HttpGet]
         public IEnumerable<TodoItem> GetAll()
-         {
+        {
             return _context.TodoItems.ToList();
         }
 
@@ -44,39 +44,54 @@ namespace TodoApi.Controllers
             return item;
         }
 
-        [HttpPut("{id}")]
-        public IActionResult UpdateById(long id)
+        [HttpPut("accepttask/{id}")]
+        public IActionResult AcceptTaskById(long id)
         {
             ResponseModel responseModel = new ResponseModel();
 
-            var item = _context.TodoItems.FirstOrDefault(t => t.Id == id);     
+            var item = _context.TodoItems.FirstOrDefault(t => t.Id == id);
             if (item == null)
             {
-                responseModel.error = "Erro Occured";
-                return BadRequest(responseModel);
+                var error = responseModel.error;
+                return NotFound(error);
             }
             item.StatusReturner = EnumBase.StatusReturner.Ongoing;
             _context.TodoItems.Update(item);
             _context.SaveChanges();
-            responseModel.message = "Created Successfully";
-            return Ok(responseModel.message);
+            return Ok(_context.TodoItems.ToList());
 
         }
-       
+        [HttpPut("declinetask/{id}")]
+        public IActionResult DeclineTaskById(long id)
+        {
+            ResponseModel responseModel = new ResponseModel();
+
+            var item = _context.TodoItems.FirstOrDefault(t => t.Id == id);
+            if (item == null)
+            {
+                var error = responseModel.error;
+                return NotFound(error);
+            }
+            item.StatusReturner = EnumBase.StatusReturner.Skipped;
+            _context.TodoItems.Update(item);
+            _context.SaveChanges();
+            return Ok(_context.TodoItems.ToList());
+
+        }
+
 
         [HttpPost]
         public IActionResult create([FromBody] TodoItem item)
         {
             ResponseModel responseModel = new ResponseModel();
-            
+
             if (item == null)
             {
-                responseModel.error = "Erro Occured";
-                return BadRequest(responseModel.error);
+                return BadRequest(1);
             }
 
             try
-            { 
+            {
                 if (item.StartTime.Day.Equals(DateTime.Now.Day))
                 {
                     item.StatusReturner = EnumBase.StatusReturner.Scheduled;
@@ -102,7 +117,7 @@ namespace TodoApi.Controllers
                 }
                 else if (item.StartTime.Day < DateTime.Now.Day)
                 {
-                    return BadRequest(responseModel.error);
+                    return BadRequest(2);
                 }
 
                 //this is how to cast a string to an enum
@@ -111,35 +126,33 @@ namespace TodoApi.Controllers
                 _context.SaveChanges();
 
                 /*  returnCreatedAtRoute("GetTodo", new { id = item.Id }, item);*/
-               
-                responseModel.message = "Created Successfully";
-                return Ok(responseModel.message);
+
+                var message = responseModel.message;
+                return Ok(20);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                responseModel.error = "Erro Occured";
-                return BadRequest(responseModel.error);
+                var error = responseModel.error;
+                return BadRequest(ex);
             }
-            
+
         }
 
         [HttpDelete("{id}")]
         public IActionResult Delete(long id)
         {
             ResponseModel responseModel = new ResponseModel();
+            var error = responseModel.error;
 
             var todo = _context.TodoItems.FirstOrDefault(t => t.Id == id);
             if (todo == null)
             {
-                responseModel.error = "Erro Occured";
-                return BadRequest(responseModel); 
+                return BadRequest(error);
             }
 
             _context.TodoItems.Remove(todo);
             _context.SaveChanges();
-            responseModel.message = "Created Successfully";
-            return Ok(responseModel);
+            return Ok(1);
         }
     }
 }
-        
