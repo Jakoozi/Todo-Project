@@ -45,10 +45,12 @@ namespace TodoApi.Controllers
                     };
                     _context.Admins.Add(newAdmin);
                     _context.SaveChanges();
+                    //i have to send back the users info here including his id
+                    //that id will now be colleceted by my front end and used to fecth the users tasks
                     return Ok(responseModel.userExists);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(ex);
             }
@@ -69,12 +71,12 @@ namespace TodoApi.Controllers
                 {
                     if (emailAdmin.Password == admin.Password)
                     {
-                       
+
                         response.isSuccessful = true;
                         return Ok(1);
                     }
                     else
-                    { 
+                    {
                         response.isSuccessful = false;
                         return Ok(2);
                     }
@@ -93,7 +95,7 @@ namespace TodoApi.Controllers
     //{
     //    private readonly TodoContext _context;
     //    AdminControllerExtension _controllerExtension;
-        
+
 
 
     //    public AdminController(TodoContext context, AdminControllerExtension controllerExtension)
@@ -111,7 +113,7 @@ namespace TodoApi.Controllers
     //    [HttpPost("registeruser")]
     //    public IActionResult createadmin([FromBody]AdminViewModel adminModel)
     //    {
-         
+
     //            ResponseModel responseModel = new ResponseModel();
     //            if (adminModel == null)
     //            {
@@ -123,16 +125,16 @@ namespace TodoApi.Controllers
     //            if(doesUserExist)
     //            {
     //                responseModel.userExists = true;
-                    
+
     //                return Ok(responseModel.userExists);
     //            }
     //            else
     //            {
     //                bool userAdded = _controllerExtension.addUser(adminModel);
-                    
+
     //                return Ok(responseModel.userExists);
     //            }
-                
+
     //        }
     //        catch (Exception ex)
     //        {
@@ -150,7 +152,7 @@ namespace TodoApi.Controllers
     //            Admin admin2 = _context.Admins.Single(p => p.Email == admin.Email && p.Password == admin.Password);
     //            if (admin == null)
     //            {
-                   
+
     //                return BadRequest(responseModel.error);
     //            }
 
