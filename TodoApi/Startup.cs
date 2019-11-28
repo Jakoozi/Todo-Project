@@ -16,7 +16,7 @@ namespace TodoApi
 {
     public class Startup
     {
-        
+
         public IConfiguration Configuration { get; }
 
         public Startup(IConfiguration configuration)
@@ -28,7 +28,7 @@ namespace TodoApi
         //This method gets called by the runtime.Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var connection = @"Server=CHICHI-PC;Database=TodoDB;Trusted_Connection=True;ConnectRetryCount=0";          
+            var connection = @"Server=.;Database=TodoDB;Trusted_Connection=True;ConnectRetryCount=0";
             services.AddDbContext<TodoContext>(options => options.UseSqlServer(connection));
             //services.AddMvc();
 
@@ -82,11 +82,11 @@ namespace TodoApi
 
 
                 }
-               
-               };
+
+            };
 
 
-            
+
 
             app.UseHangfireDashboard("/hangfire", options: hangFireAuth);
 
@@ -96,21 +96,21 @@ namespace TodoApi
             BackgroundTask hangfire = new BackgroundTask(todocontext);
 
             app.UseMvcWithDefaultRoute();
-            
 
 
-   }
+
+        }
     }
 }
 
-                //routes => {
-                //        routes.MapRoute(
-                //        name: "default",
-                //        template: "{controller=Home}/{action=Index}/{id?}");
+//routes => {
+//        routes.MapRoute(
+//        name: "default",
+//        template: "{controller=Home}/{action=Index}/{id?}");
 
-                //       routes.MapRoute(
-                //       name: "about-route",
-                //       template: "about",
-                //       defaults: new { controller = "Home", action = "About" }
-                //        );
-                // }
+//       routes.MapRoute(
+//       name: "about-route",
+//       template: "about",
+//       defaults: new { controller = "Home", action = "About" }
+//        );
+// }
