@@ -62,23 +62,24 @@ namespace TodoApi.Controllers
             try
             {
                 ResponseModel response = new ResponseModel();
-                Admin emailAdmin = _context.Admins.FirstOrDefault(p => p.Email == admin.Email);
-                if (emailAdmin == null)
+                Admin user = _context.Admins.FirstOrDefault(p => p.Email == admin.Email);
+                if (user == null)
                 {
-                    return Ok(3);
+                    response.isUserNull = true;
+                    var userIsNull = response.isUserNull;
+                    return Ok(userIsNull);
                 }
                 else
                 {
-                    if (emailAdmin.Password == admin.Password)
+                    if (user.Password == admin.Password)
                     {
-
-                        response.isSuccessful = true;
-                        return Ok(1);
+                        return Ok(user.Id);
                     }
                     else
                     {
                         response.isSuccessful = false;
-                        return Ok(2);
+                        var isSuccessful = response.isSuccessful;
+                        return Ok(isSuccessful);
                     }
                 }
 

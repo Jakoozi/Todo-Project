@@ -25,7 +25,7 @@ namespace TodoApi.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpGet("getalltasks")]
         public IEnumerable<TodoItem> GetAll()
         {
             return _context.TodoItems.ToList();
@@ -42,6 +42,15 @@ namespace TodoApi.Controllers
                 return null; //NotFound();
             }
             return item;
+        }
+
+        //this method returns the users task by his id
+        [HttpGet("getByUserId/{id}")]
+        public IActionResult getByUserId(long id)
+        {
+            ResponseModel responseModel = new ResponseModel();
+            var items = _context.TodoItems.Where(t => t.UserId == id).ToList();
+            return Ok(items);
         }
 
         [HttpPut("accepttask/{id}")]

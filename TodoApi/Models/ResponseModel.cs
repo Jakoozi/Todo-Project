@@ -12,6 +12,7 @@ namespace TodoApi.Models
         public string userIsNull = "No User";
         public bool isSuccessful { get; set; } = false;
         public bool userExists { get; set; } = false;
+        public bool isUserNull { get; set; } = false;
 
     }
 }

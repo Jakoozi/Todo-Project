@@ -15,6 +15,7 @@ namespace TodoApi.Models
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
         public EnumBase.StatusReturner StatusReturner { get; set; }
+        public long UserId { get; set; }
         
     }
 

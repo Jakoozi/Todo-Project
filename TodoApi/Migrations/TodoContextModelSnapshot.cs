@@ -15,7 +15,7 @@ namespace TodoApi.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.2.1-servicing-10028")
+                .HasAnnotation("ProductVersion", "2.2.4-servicing-10062")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -62,6 +62,8 @@ namespace TodoApi.Migrations
                     b.Property<DateTime>("StartTime");
 
                     b.Property<int>("StatusReturner");
+
+                    b.Property<long>("UserId");
 
                     b.HasKey("Id");
 
